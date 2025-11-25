@@ -33,7 +33,7 @@ public class Main {
     @Bean
     public CommandLineRunner initData() {
         return args -> {
-            // create 2 users (2 notes)
+            // Create 2 users (2 notes)
             UserDto user1Dto = UserDto.builder()
                     .username("john_mcmaffin")
                     .password("user123")
