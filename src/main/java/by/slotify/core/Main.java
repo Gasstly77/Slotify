@@ -63,7 +63,7 @@ public class Main {
             meetingType2Dto = meetingTypeService.create(meetingType2Dto);
             System.out.println("Created 2 meeting types");
 
-            // Create location (2 notes)
+            // Create locations (2 notes)
             LocationDto location1Dto = LocationDto.builder()
                     .name("Prospect")
                     .details("Large conference hall with 500 seats")
