@@ -36,13 +36,13 @@ public class Main {
             // Create 2 users (2 notes)
             UserDto user1Dto = UserDto.builder()
                     .username("john_mcmaffin")
-                    .password("user123")
+                    .passwordHash("user123")
                     .email("john@example.com")
                     .role(User.Role.USER)
                     .build();
             UserDto user2Dto = UserDto.builder()
                     .username("admin_user")
-                    .password("admin456")
+                    .passwordHash("admin456")
                     .email("admin@example.com")
                     .role(User.Role.ADMIN)
                     .build();
