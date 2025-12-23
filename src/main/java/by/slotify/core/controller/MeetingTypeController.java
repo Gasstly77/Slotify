@@ -1,6 +1,7 @@
 package by.slotify.core.controller;
 
-import by.slotify.core.dto.MeetingTypeDto;
+import by.slotify.core.dto.request.MeetingTypeRequest;
+import by.slotify.core.dto.response.MeetingTypeResponse;
 import by.slotify.core.service.MeetingTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,36 +23,40 @@ public class MeetingTypeController {
 
     @GetMapping
     @Operation(summary = "Получить все типы мероприятий")
-    public ResponseEntity<List<MeetingTypeDto>> getAllMeetingTypes() {
-        List<MeetingTypeDto> meetingTypes = meetingTypeService.findAll();
+    public ResponseEntity<List<MeetingTypeResponse>> getAllMeetingTypes() {
+        List<MeetingTypeResponse> meetingTypes = meetingTypeService.findAll();
         return ResponseEntity.ok(meetingTypes);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить тип мероприятия по ID")
-    public ResponseEntity<MeetingTypeDto> getMeetingTypeById(@PathVariable Integer id) {
+    public ResponseEntity<MeetingTypeResponse> getMeetingTypeById(@PathVariable Integer id) {
         return meetingTypeService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    @Operation(summary = "Создать тип мероприятия")
-    public ResponseEntity<MeetingTypeDto> createMeetingType(@Valid @RequestBody MeetingTypeDto meetingTypeDto) {
-        MeetingTypeDto created = meetingTypeService.create(meetingTypeDto);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Создать тип мероприятия", description = "Создать тип мероприятия (только для админа)")
+    public ResponseEntity<MeetingTypeResponse> createMeetingType(@Valid @RequestBody MeetingTypeRequest meetingTypeRequest) {
+        MeetingTypeResponse created = meetingTypeService.create(meetingTypeRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Обновить тип мероприятия")
-    public ResponseEntity<MeetingTypeDto> updateMeetingType(@PathVariable Integer id, @Valid @RequestBody MeetingTypeDto meetingTypeDto) {
-        meetingTypeDto.setMeetingTypeId(id);
-        MeetingTypeDto updated = meetingTypeService.update(meetingTypeDto);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Обновить тип мероприятия", description = "Обновить тип мероприятия (только для админа)")
+    public ResponseEntity<MeetingTypeResponse> updateMeetingType(
+            @PathVariable Integer id,
+            @Valid @RequestBody MeetingTypeRequest meetingTypeRequest) {
+        MeetingTypeResponse updated = meetingTypeService.update(id, meetingTypeRequest);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить тип мероприятия")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Удалить тип мероприятия", description = "Удалить тип мероприятия (только для админа)")
     public ResponseEntity<Void> deleteMeetingType(@PathVariable Integer id) {
         meetingTypeService.deleteById(id);
         return ResponseEntity.noContent().build();
