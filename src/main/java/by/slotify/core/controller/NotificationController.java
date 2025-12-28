@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,48 +25,44 @@ public class NotificationController {
     @GetMapping("/my")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Мои уведомления", description = "Получить все уведомления текущего пользователя")
-    public ResponseEntity<List<NotificationResponse>> getMyNotifications() {
+    public List<NotificationResponse> getMyNotifications() {
         Integer userId = securityUtil.getCurrentUserId();
-        List<NotificationResponse> notifications = notificationService.findByUserId(userId);
-        return ResponseEntity.ok(notifications);
+        return notificationService.findByUserId(userId);
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Получить все уведомления", description = "Получить все уведомления (только для админа)")
-    public ResponseEntity<List<NotificationResponse>> getAllNotifications() {
-        List<NotificationResponse> notifications = notificationService.findAll();
-        return ResponseEntity.ok(notifications);
+    public List<NotificationResponse> getAllNotifications() {
+        return notificationService.findAll();
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить уведомление по ID")
-    public ResponseEntity<NotificationResponse> getNotificationById(@PathVariable Integer id) {
+    public NotificationResponse getNotificationById(@PathVariable Integer id) {
         return notificationService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("Notification not found with id: " + id));
     }
 
     @PostMapping
     @Operation(summary = "Создать уведомление")
-    public ResponseEntity<NotificationResponse> createNotification(@Valid @RequestBody NotificationRequest notificationRequest) {
-        NotificationResponse created = notificationService.create(notificationRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @ResponseStatus(HttpStatus.CREATED)
+    public NotificationResponse createNotification(@Valid @RequestBody NotificationRequest notificationRequest) {
+        return notificationService.create(notificationRequest);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Обновить уведомление")
-    public ResponseEntity<NotificationResponse> updateNotification(
+    public NotificationResponse updateNotification(
             @PathVariable Integer id,
             @Valid @RequestBody NotificationRequest notificationRequest) {
-        NotificationResponse updated = notificationService.update(id, notificationRequest);
-        return ResponseEntity.ok(updated);
+        return notificationService.update(id, notificationRequest);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить уведомление")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteNotification(@PathVariable Integer id) {
         notificationService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,42 +22,39 @@ public class TimeSlotController {
 
     @GetMapping
     @Operation(summary = "Получить все временные слоты")
-    public ResponseEntity<List<TimeSlotResponse>> getAllTimeSlots() {
-        List<TimeSlotResponse> timeSlots = timeSlotService.findAll();
-        return ResponseEntity.ok(timeSlots);
+    public List<TimeSlotResponse> getAllTimeSlots() {
+        return timeSlotService.findAll();
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить временной слот по ID")
-    public ResponseEntity<TimeSlotResponse> getTimeSlotById(@PathVariable Integer id) {
+    public TimeSlotResponse getTimeSlotById(@PathVariable Integer id) {
         return timeSlotService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("TimeSlot not found with id: " + id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Создать временной слот", description = "Создать временной слот для мероприятия (только для админа)")
-    public ResponseEntity<TimeSlotResponse> createTimeSlot(@Valid @RequestBody TimeSlotRequest timeSlotRequest) {
-        TimeSlotResponse created = timeSlotService.create(timeSlotRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @ResponseStatus(HttpStatus.CREATED)
+    public TimeSlotResponse createTimeSlot(@Valid @RequestBody TimeSlotRequest timeSlotRequest) {
+        return timeSlotService.create(timeSlotRequest);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Обновить временной слот", description = "Обновить временной слот (только для админа)")
-    public ResponseEntity<TimeSlotResponse> updateTimeSlot(
+    public TimeSlotResponse updateTimeSlot(
             @PathVariable Integer id,
             @Valid @RequestBody TimeSlotRequest timeSlotRequest) {
-        TimeSlotResponse updated = timeSlotService.update(id, timeSlotRequest);
-        return ResponseEntity.ok(updated);
+        return timeSlotService.update(id, timeSlotRequest);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Удалить временной слот", description = "Удалить временной слот (только для админа)")
-    public ResponseEntity<Void> deleteTimeSlot(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTimeSlot(@PathVariable Integer id) {
         timeSlotService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

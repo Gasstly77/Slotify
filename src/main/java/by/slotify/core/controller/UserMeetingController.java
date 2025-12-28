@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,29 +28,26 @@ public class UserMeetingController {
     @GetMapping("/my-requests")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Мои заявки", description = "Получить все заявки текущего пользователя")
-    public ResponseEntity<Page<RequestResponse>> getMyRequests(
+    public Page<RequestResponse> getMyRequests(
             @PageableDefault(size = 20, sort = "requestId") Pageable pageable) {
         Integer userId = securityUtil.getCurrentUserId();
-        Page<RequestResponse> requests = requestService.findByUserId(userId, pageable);
-        return ResponseEntity.ok(requests);
+        return requestService.findByUserId(userId, pageable);
     }
 
     @GetMapping("/my-accepted-meetings")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Мои назначенные встречи", description = "Получить все принятые заявки текущего пользователя")
-    public ResponseEntity<List<RequestResponse>> getMyAcceptedMeetings() {
+    public List<RequestResponse> getMyAcceptedMeetings() {
         Integer userId = securityUtil.getCurrentUserId();
-        List<RequestResponse> requests = requestService.findMyAcceptedRequests(userId);
-        return ResponseEntity.ok(requests);
+        return requestService.findMyAcceptedRequests(userId);
     }
 
     @GetMapping("/active-meetings")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Активные мероприятия", description = "Получить все активные мероприятия доступные для участия")
-    public ResponseEntity<Page<MeetingResponse>> getActiveMeetings(
+    public Page<MeetingResponse> getActiveMeetings(
             @PageableDefault(size = 20, sort = "meetingId") Pageable pageable) {
-        Page<MeetingResponse> meetings = meetingService.findActiveMeetings(pageable);
-        return ResponseEntity.ok(meetings);
+        return meetingService.findActiveMeetings(pageable);
     }
 }
 

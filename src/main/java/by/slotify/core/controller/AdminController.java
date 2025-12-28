@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,37 +29,33 @@ public class AdminController {
     @GetMapping("/meetings/{meetingId}/requests")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Заявки на мероприятие", description = "Получить все заявки на указанное мероприятие")
-    public ResponseEntity<Page<RequestResponse>> getMeetingRequests(
+    public Page<RequestResponse> getMeetingRequests(
             @PathVariable Integer meetingId,
             @PageableDefault(size = 20, sort = "requestId") Pageable pageable) {
-        Page<RequestResponse> requests = requestService.findByMeetingId(meetingId, pageable);
-        return ResponseEntity.ok(requests);
+        return requestService.findByMeetingId(meetingId, pageable);
     }
 
     @PostMapping("/requests/accept-or-reject")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Принять/отклонить заявку", description = "Принять или отклонить заявку на участие")
-    public ResponseEntity<RequestResponse> acceptOrRejectRequest(
+    public RequestResponse acceptOrRejectRequest(
             @Valid @RequestBody AcceptRequestRequest acceptRequest) {
-        RequestResponse response = requestService.acceptOrRejectRequest(acceptRequest);
-        return ResponseEntity.ok(response);
+        return requestService.acceptOrRejectRequest(acceptRequest);
     }
 
     @PostMapping("/time-slots/set-final-time")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Назначить итоговое время", description = "Установить финальное время для временного слота")
-    public ResponseEntity<TimeSlotResponse> setFinalTime(
+    public TimeSlotResponse setFinalTime(
             @Valid @RequestBody SetFinalTimeRequest setFinalTimeRequest) {
-        TimeSlotResponse response = timeSlotService.setFinalTime(setFinalTimeRequest);
-        return ResponseEntity.ok(response);
+        return timeSlotService.setFinalTime(setFinalTimeRequest);
     }
 
     @GetMapping("/meetings/{meetingId}/time-slots")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Временные слоты мероприятия", description = "Получить все временные слоты для мероприятия")
-    public ResponseEntity<List<TimeSlotResponse>> getMeetingTimeSlots(@PathVariable Integer meetingId) {
-        List<TimeSlotResponse> timeSlots = timeSlotService.findByMeetingId(meetingId);
-        return ResponseEntity.ok(timeSlots);
+    public List<TimeSlotResponse> getMeetingTimeSlots(@PathVariable Integer meetingId) {
+        return timeSlotService.findByMeetingId(meetingId);
     }
 }
 

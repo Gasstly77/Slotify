@@ -12,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,45 +26,42 @@ public class RequestController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Получить все запросы", description = "Возвращает страницу запросов с пагинацией (только для админа)")
-    public ResponseEntity<Page<RequestResponse>> getAllRequests(
+    public Page<RequestResponse> getAllRequests(
             @PageableDefault(size = 20, sort = "requestId") Pageable pageable) {
-        Page<RequestResponse> requests = requestService.findAll(pageable);
-        return ResponseEntity.ok(requests);
+        return requestService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить запрос по ID")
-    public ResponseEntity<RequestResponse> getRequestById(@PathVariable Integer id) {
+    public RequestResponse getRequestById(@PathVariable Integer id) {
         return requestService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("Request not found with id: " + id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Создать запрос", description = "Создать заявку на участие в мероприятии (только для пользователя)")
-    public ResponseEntity<RequestResponse> createRequest(@Valid @RequestBody RequestRequest requestRequest) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public RequestResponse createRequest(@Valid @RequestBody RequestRequest requestRequest) {
         // Устанавливаем userId текущего пользователя
         Integer currentUserId = securityUtil.getCurrentUserId();
         requestRequest.setUserId(currentUserId);
         
-        RequestResponse created = requestService.create(requestRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return requestService.create(requestRequest);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Обновить запрос")
-    public ResponseEntity<RequestResponse> updateRequest(
+    public RequestResponse updateRequest(
             @PathVariable Integer id,
             @Valid @RequestBody RequestRequest requestRequest) {
-        RequestResponse updated = requestService.update(id, requestRequest);
-        return ResponseEntity.ok(updated);
+        return requestService.update(id, requestRequest);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить запрос")
-    public ResponseEntity<Void> deleteRequest(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRequest(@PathVariable Integer id) {
         requestService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

@@ -14,6 +14,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
 management:
   endpoints:
     web:
@@ -34,4 +39,10 @@ springdoc:
     path: /swagger-ui.html
     operationsSorter: method
     tagsSorter: alpha
+
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationThatShouldBeAtLeast256BitsLongForSecurityPurposes
+  expiration: 30000
+  refresh:
+    expiration: 300000
 

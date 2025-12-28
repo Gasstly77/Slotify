@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,42 +22,39 @@ public class LocationController {
 
     @GetMapping
     @Operation(summary = "Получить все локации")
-    public ResponseEntity<List<LocationResponse>> getAllLocations() {
-        List<LocationResponse> locations = locationService.findAll();
-        return ResponseEntity.ok(locations);
+    public List<LocationResponse> getAllLocations() {
+        return locationService.findAll();
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить локацию по ID")
-    public ResponseEntity<LocationResponse> getLocationById(@PathVariable Integer id) {
+    public LocationResponse getLocationById(@PathVariable Integer id) {
         return locationService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("Location not found with id: " + id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Создать локацию", description = "Создать локацию (только для админа)")
-    public ResponseEntity<LocationResponse> createLocation(@Valid @RequestBody LocationRequest locationRequest) {
-        LocationResponse created = locationService.create(locationRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @ResponseStatus(HttpStatus.CREATED)
+    public LocationResponse createLocation(@Valid @RequestBody LocationRequest locationRequest) {
+        return locationService.create(locationRequest);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Обновить локацию", description = "Обновить локацию (только для админа)")
-    public ResponseEntity<LocationResponse> updateLocation(
+    public LocationResponse updateLocation(
             @PathVariable Integer id,
             @Valid @RequestBody LocationRequest locationRequest) {
-        LocationResponse updated = locationService.update(id, locationRequest);
-        return ResponseEntity.ok(updated);
+        return locationService.update(id, locationRequest);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Удалить локацию", description = "Удалить локацию (только для админа)")
-    public ResponseEntity<Void> deleteLocation(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLocation(@PathVariable Integer id) {
         locationService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

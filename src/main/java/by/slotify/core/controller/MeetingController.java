@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,43 +23,40 @@ public class MeetingController {
 
     @GetMapping
     @Operation(summary = "Получить все мероприятия", description = "Возвращает страницу мероприятий с пагинацией")
-    public ResponseEntity<Page<MeetingResponse>> getAllMeetings(
+    public Page<MeetingResponse> getAllMeetings(
             @PageableDefault(size = 20, sort = "meetingId") Pageable pageable) {
-        Page<MeetingResponse> meetings = meetingService.findAll(pageable);
-        return ResponseEntity.ok(meetings);
+        return meetingService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить мероприятие по ID")
-    public ResponseEntity<MeetingResponse> getMeetingById(@PathVariable Integer id) {
+    public MeetingResponse getMeetingById(@PathVariable Integer id) {
         return meetingService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("Meeting not found with id: " + id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Создать мероприятие", description = "Создать новое мероприятие (только для админа)")
-    public ResponseEntity<MeetingResponse> createMeeting(@Valid @RequestBody MeetingRequest meetingRequest) {
-        MeetingResponse created = meetingService.create(meetingRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @ResponseStatus(HttpStatus.CREATED)
+    public MeetingResponse createMeeting(@Valid @RequestBody MeetingRequest meetingRequest) {
+        return meetingService.create(meetingRequest);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Обновить мероприятие", description = "Обновить мероприятие (только для админа)")
-    public ResponseEntity<MeetingResponse> updateMeeting(
+    public MeetingResponse updateMeeting(
             @PathVariable Integer id,
             @Valid @RequestBody MeetingRequest meetingRequest) {
-        MeetingResponse updated = meetingService.update(id, meetingRequest);
-        return ResponseEntity.ok(updated);
+        return meetingService.update(id, meetingRequest);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Удалить мероприятие", description = "Удалить мероприятие (только для админа)")
-    public ResponseEntity<Void> deleteMeeting(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMeeting(@PathVariable Integer id) {
         meetingService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

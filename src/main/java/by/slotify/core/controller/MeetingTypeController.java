@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,42 +22,39 @@ public class MeetingTypeController {
 
     @GetMapping
     @Operation(summary = "Получить все типы мероприятий")
-    public ResponseEntity<List<MeetingTypeResponse>> getAllMeetingTypes() {
-        List<MeetingTypeResponse> meetingTypes = meetingTypeService.findAll();
-        return ResponseEntity.ok(meetingTypes);
+    public List<MeetingTypeResponse> getAllMeetingTypes() {
+        return meetingTypeService.findAll();
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить тип мероприятия по ID")
-    public ResponseEntity<MeetingTypeResponse> getMeetingTypeById(@PathVariable Integer id) {
+    public MeetingTypeResponse getMeetingTypeById(@PathVariable Integer id) {
         return meetingTypeService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("MeetingType not found with id: " + id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Создать тип мероприятия", description = "Создать тип мероприятия (только для админа)")
-    public ResponseEntity<MeetingTypeResponse> createMeetingType(@Valid @RequestBody MeetingTypeRequest meetingTypeRequest) {
-        MeetingTypeResponse created = meetingTypeService.create(meetingTypeRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @ResponseStatus(HttpStatus.CREATED)
+    public MeetingTypeResponse createMeetingType(@Valid @RequestBody MeetingTypeRequest meetingTypeRequest) {
+        return meetingTypeService.create(meetingTypeRequest);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Обновить тип мероприятия", description = "Обновить тип мероприятия (только для админа)")
-    public ResponseEntity<MeetingTypeResponse> updateMeetingType(
+    public MeetingTypeResponse updateMeetingType(
             @PathVariable Integer id,
             @Valid @RequestBody MeetingTypeRequest meetingTypeRequest) {
-        MeetingTypeResponse updated = meetingTypeService.update(id, meetingTypeRequest);
-        return ResponseEntity.ok(updated);
+        return meetingTypeService.update(id, meetingTypeRequest);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Удалить тип мероприятия", description = "Удалить тип мероприятия (только для админа)")
-    public ResponseEntity<Void> deleteMeetingType(@PathVariable Integer id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMeetingType(@PathVariable Integer id) {
         meetingTypeService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

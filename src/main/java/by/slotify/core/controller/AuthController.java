@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,30 +21,28 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Регистрация", description = "Регистрация нового пользователя с ролью USER и автоматический вход")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        AuthResponse response = authService.register(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse register(@Valid @RequestBody RegisterRequest registerRequest) {
+        return authService.register(registerRequest);
     }
 
     @PostMapping("/login")
     @Operation(summary = "Вход в систему", description = "Аутентификация пользователя и получение JWT токенов")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        AuthResponse response = authService.login(loginRequest);
-        return ResponseEntity.ok(response);
+    public AuthResponse login(@Valid @RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
     }
 
     @PostMapping("/refresh")
     @Operation(summary = "Обновление токена", description = "Получение нового access token по refresh token")
-    public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
-        AuthResponse response = authService.refreshToken(refreshTokenRequest);
-        return ResponseEntity.ok(response);
+    public AuthResponse refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return authService.refreshToken(refreshTokenRequest);
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Выход из системы", description = "Удаление refresh token")
-    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         authService.logout(refreshTokenRequest.getRefreshToken());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
 
