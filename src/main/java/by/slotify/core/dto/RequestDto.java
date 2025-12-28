@@ -16,16 +16,16 @@ import java.time.LocalDateTime;
 public class RequestDto {
     private Integer requestId;
 
-    @NotNull(message = "User ID is required")
+    @NotNull(message = "Ид пользователя обязательно для заполнения")
     private Integer userId;
 
-    @NotNull(message = "Slot ID is required")
+    @NotNull(message = "Ид слота обязательно для заполнения")
     private Integer slotId;
 
-    @NotNull(message = "Participation type ID is required")
+    @NotNull(message = "Ид типа участия обязательно для заполнения")
     private Integer participationTypeId;
 
-    @NotNull(message = "Status is required")
+    @NotNull(message = "Статус обязателен для заполнения")
     private Request.Status status;
 
     private LocalDateTime createdAt;

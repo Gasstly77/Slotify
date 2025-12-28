@@ -15,15 +15,15 @@ import java.time.LocalDateTime;
 public class TimeSlotDto {
     private Integer slotId;
 
-    @NotNull(message = "Meeting ID is required")
+    @NotNull(message = "Ид мероприятия обязательно для заполнения")
     private Integer meetingId;
 
-    @NotNull(message = "Start time is required")
+    @NotNull(message = "Время начала обязательно для заполнения")
     private LocalDateTime startTime;
 
-    @NotNull(message = "End time is required")
+    @NotNull(message = "Время завершения обязательно для заполнения")
     private LocalDateTime endTime;
 
-    @NotNull(message = "Is final flag is required")
+    @NotNull(message = "Окончательное обязательно для заполнения")
     private Boolean isFinal;
 }

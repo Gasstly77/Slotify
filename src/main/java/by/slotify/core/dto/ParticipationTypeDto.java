@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 public class ParticipationTypeDto {
     private Integer participationTypeId;
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @NotBlank(message = "Имя обязательно для заполнения")
+    @Size(max = 100, message = "Имя должно содержать не больше 100 символов")
     private String name;
 
-    @Size(max = 500, message = "Description must not exceed 500 characters")
+    @Size(max = 500, message = "Описание должно содержать не больше 500 символов")
     private String description;
 }

@@ -18,21 +18,21 @@ import java.time.LocalDateTime;
 public class MeetingDto {
     private Integer meetingId;
 
-    @NotBlank(message = "Title is required")
-    @Size(max = 200, message = "Title must not exceed 200 characters")
+    @NotBlank(message = "Заголовок обязателен для заполнения")
+    @Size(max = 200, message = "Заголовок должен содержать не больше 200 символов")
     private String title;
 
-    @Size(max = 2000, message = "Description must not exceed 2000 characters")
+    @Size(max = 2000, message = "Описание должно содержать не больше 2000 символов")
     private String description;
 
     private LocalDateTime finalTime;
 
-    @NotNull(message = "Status is required")
+    @NotNull(message = "Статус обязателен для заполнения")
     private Meeting.Status status;
 
-    @NotNull(message = "Meeting type ID is required")
+    @NotNull(message = "Ид типа встречи обязательно для заполнения")
     private Integer meetingTypeId;
 
-    @NotNull(message = "Location ID is required")
+    @NotNull(message = "Ид локации обязательно для заполнения")
     private Integer locationId;
 }

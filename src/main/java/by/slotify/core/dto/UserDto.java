@@ -17,18 +17,18 @@ import lombok.NoArgsConstructor;
 public class UserDto {
     private Integer userId;
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = "Имя пользователя обязательно для заполнения")
+    @Size(min = 3, max = 50, message = "Имя пользователя должно содержать от 3 до 50 символов")
     private String username;
 
-    @NotBlank(message = "Password hash is required")
-    @Size(min = 8, message = "Password hash must be at least 8 characters")
+    @NotBlank(message = "Пароль обязателен для заполнения")
+    @Size(min = 8, message = "Пароль должен содержать минимум 8 символов")
     private String passwordHash;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+    @NotBlank(message = "Email обязателен для заполнения")
+    @Email(message = "Email должен быть валидным")
     private String email;
 
-    @NotNull(message = "Role is required")
+    @NotNull(message = "Роль обязательна для заполнения")
     private User.Role role;
 }

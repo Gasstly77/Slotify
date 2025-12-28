@@ -18,18 +18,18 @@ import java.time.LocalDateTime;
 public class NotificationDto {
     private Integer notificationId;
 
-    @NotNull(message = "User ID is required")
+    @NotNull(message = "Ид пользователя обязательно для заполнения")
     private Integer userId;
 
-    @NotBlank(message = "Message is required")
-    @Size(max = 2000, message = "Message must not exceed 2000 characters")
+    @NotBlank(message = "Сообщение обязательно для заполнения")
+    @Size(max = 2000, message = "Сообщение должно содержать не больше 2000 символов")
     private String message;
 
-    @NotNull(message = "Type is required")
+    @NotNull(message = "Тип обязателен для заполнения")
     private Notification.Type type;
 
     private LocalDateTime createdAt;
 
-    @NotNull(message = "Is read flag is required")
+    @NotNull(message = "Флаг статуса прочтения обязателен для заполнения")
     private Boolean isRead;
 }

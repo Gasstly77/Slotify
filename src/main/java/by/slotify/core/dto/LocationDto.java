@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 public class LocationDto {
     private Integer locationId;
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @NotBlank(message = "Имя обязательно для заполнения")
+    @Size(max = 100, message = "Имя должно содержать не больше 100 символов")
     private String name;
 
-    @Size(max = 1000, message = "Details must not exceed 1000 characters")
+    @Size(max = 1000, message = "Детали должны содержать не больше 1000 символов")
     private String details;
 }
