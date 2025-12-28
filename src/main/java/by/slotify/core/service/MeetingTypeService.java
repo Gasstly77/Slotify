@@ -1,6 +1,7 @@
 package by.slotify.core.service;
 
-import by.slotify.core.dto.MeetingTypeDto;
+import by.slotify.core.dto.request.MeetingTypeRequest;
+import by.slotify.core.dto.response.MeetingTypeResponse;
 import by.slotify.core.entity.MeetingType;
 import by.slotify.core.mapper.MeetingTypeMapper;
 import by.slotify.core.repository.MeetingTypeRepository;
@@ -10,44 +11,47 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class MeetingTypeService {
     private final MeetingTypeRepository meetingTypeRepository;
     private final MeetingTypeMapper meetingTypeMapper;
 
-    public MeetingTypeDto create(MeetingTypeDto meetingTypeDto) {
-        MeetingType meetingType = meetingTypeMapper.toEntity(meetingTypeDto);
+    @Transactional
+    public MeetingTypeResponse create(MeetingTypeRequest meetingTypeRequest) {
+        MeetingType meetingType = meetingTypeMapper.toEntity(meetingTypeRequest);
         MeetingType saved = meetingTypeRepository.save(meetingType);
-        return meetingTypeMapper.toDto(saved);
+        return meetingTypeMapper.toResponse(saved);
     }
 
-    public Optional<MeetingTypeDto> findById(Integer id) {
+    @Transactional(readOnly = true)
+    public Optional<MeetingTypeResponse> findById(Integer id) {
         return meetingTypeRepository.findById(id)
-                .map(meetingTypeMapper::toDto);
+                .map(meetingTypeMapper::toResponse);
     }
 
-    public List<MeetingTypeDto> findAll() {
+    @Transactional(readOnly = true)
+    public List<MeetingTypeResponse> findAll() {
         return meetingTypeRepository.findAll().stream()
-                .map(meetingTypeMapper::toDto)
-                .collect(Collectors.toList());
+                .map(meetingTypeMapper::toResponse)
+                .toList();
     }
 
-    public MeetingTypeDto update(MeetingTypeDto meetingTypeDto) {
-        MeetingType meetingType = meetingTypeMapper.toEntity(meetingTypeDto);
+    @Transactional
+    public MeetingTypeResponse update(Integer id, MeetingTypeRequest meetingTypeRequest) {
+        MeetingType meetingType = meetingTypeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("MeetingType not found with id: " + id));
+        
+        meetingType.setName(meetingTypeRequest.getName());
+        meetingType.setDescription(meetingTypeRequest.getDescription());
+        
         MeetingType saved = meetingTypeRepository.save(meetingType);
-        return meetingTypeMapper.toDto(saved);
+        return meetingTypeMapper.toResponse(saved);
     }
 
+    @Transactional
     public void deleteById(Integer id) {
         meetingTypeRepository.deleteById(id);
-    }
-
-    public void delete(MeetingTypeDto meetingTypeDto) {
-        MeetingType meetingType = meetingTypeMapper.toEntity(meetingTypeDto);
-        meetingTypeRepository.delete(meetingType);
     }
 }

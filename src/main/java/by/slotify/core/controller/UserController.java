@@ -1,50 +1,58 @@
 package by.slotify.core.controller;
 
-import by.slotify.core.dto.UserDto;
+import by.slotify.core.dto.request.UserRequest;
+import by.slotify.core.dto.response.UserResponse;
 import by.slotify.core.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(name = "Users", description = "API для управления пользователями")
 public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> users = userService.findAll();
-        return ResponseEntity.ok(users);
+    @Operation(summary = "Получить всех пользователей", description = "Возвращает страницу пользователей с пагинацией")
+    public Page<UserResponse> getAllUsers(
+            @PageableDefault(size = 20, sort = "userId") Pageable pageable) {
+        return userService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Integer id) {
+    @Operation(summary = "Получить пользователя по ID", description = "Возвращает пользователя по указанному ID")
+    public UserResponse getUserById(@PathVariable Integer id) {
         return userService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
-        UserDto created = userService.create(userDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @Operation(summary = "Создать пользователя", description = "Создает нового пользователя")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse createUser(@Valid @RequestBody UserRequest userRequest) {
+        return userService.create(userRequest);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Integer id, @RequestBody UserDto userDto) {
-        userDto.setUserId(id);
-        UserDto updated = userService.update(userDto);
-        return ResponseEntity.ok(updated);
+    @Operation(summary = "Обновить пользователя", description = "Обновляет существующего пользователя")
+    public UserResponse updateUser(
+            @PathVariable Integer id,
+            @Valid @RequestBody UserRequest userRequest) {
+        return userService.update(id, userRequest);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+    @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по указанному ID")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Integer id) {
         userService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
-

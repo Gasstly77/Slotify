@@ -1,10 +1,14 @@
 package by.slotify.core.controller;
 
-import by.slotify.core.dto.ParticipationTypeDto;
+import by.slotify.core.dto.request.ParticipationTypeRequest;
+import by.slotify.core.dto.response.ParticipationTypeResponse;
 import by.slotify.core.service.ParticipationTypeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,39 +16,45 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/participation-types")
 @RequiredArgsConstructor
+@Tag(name = "Participation Types", description = "API для управления типами участия")
 public class ParticipationTypeController {
     private final ParticipationTypeService participationTypeService;
 
     @GetMapping
-    public ResponseEntity<List<ParticipationTypeDto>> getAllParticipationTypes() {
-        List<ParticipationTypeDto> participationTypes = participationTypeService.findAll();
-        return ResponseEntity.ok(participationTypes);
+    @Operation(summary = "Получить все типы участия")
+    public List<ParticipationTypeResponse> getAllParticipationTypes() {
+        return participationTypeService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ParticipationTypeDto> getParticipationTypeById(@PathVariable Integer id) {
+    @Operation(summary = "Получить тип участия по ID")
+    public ParticipationTypeResponse getParticipationTypeById(@PathVariable Integer id) {
         return participationTypeService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RuntimeException("ParticipationType not found with id: " + id));
     }
 
     @PostMapping
-    public ResponseEntity<ParticipationTypeDto> createParticipationType(@RequestBody ParticipationTypeDto participationTypeDto) {
-        ParticipationTypeDto created = participationTypeService.create(participationTypeDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Создать тип участия", description = "Создать тип участия (только для админа)")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ParticipationTypeResponse createParticipationType(@Valid @RequestBody ParticipationTypeRequest participationTypeRequest) {
+        return participationTypeService.create(participationTypeRequest);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ParticipationTypeDto> updateParticipationType(@PathVariable Integer id, @RequestBody ParticipationTypeDto participationTypeDto) {
-        participationTypeDto.setParticipationTypeId(id);
-        ParticipationTypeDto updated = participationTypeService.update(participationTypeDto);
-        return ResponseEntity.ok(updated);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Обновить тип участия", description = "Обновить тип участия (только для админа)")
+    public ParticipationTypeResponse updateParticipationType(
+            @PathVariable Integer id,
+            @Valid @RequestBody ParticipationTypeRequest participationTypeRequest) {
+        return participationTypeService.update(id, participationTypeRequest);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteParticipationType(@PathVariable Integer id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Удалить тип участия", description = "Удалить тип участия (только для админа)")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteParticipationType(@PathVariable Integer id) {
         participationTypeService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
-

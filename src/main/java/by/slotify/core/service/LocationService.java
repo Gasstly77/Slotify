@@ -1,6 +1,7 @@
 package by.slotify.core.service;
 
-import by.slotify.core.dto.LocationDto;
+import by.slotify.core.dto.request.LocationRequest;
+import by.slotify.core.dto.response.LocationResponse;
 import by.slotify.core.entity.Location;
 import by.slotify.core.mapper.LocationMapper;
 import by.slotify.core.repository.LocationRepository;
@@ -8,46 +9,48 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class LocationService {
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
 
-    public LocationDto create(LocationDto locationDto) {
-        Location location = locationMapper.toEntity(locationDto);
+    @Transactional
+    public LocationResponse create(LocationRequest locationRequest) {
+        Location location = locationMapper.toEntity(locationRequest);
         Location saved = locationRepository.save(location);
-        return locationMapper.toDto(saved);
+        return locationMapper.toResponse(saved);
     }
 
-    public Optional<LocationDto> findById(Integer id) {
+    @Transactional(readOnly = true)
+    public Optional<LocationResponse> findById(Integer id) {
         return locationRepository.findById(id)
-                .map(locationMapper::toDto);
+                .map(locationMapper::toResponse);
     }
 
-    public List<LocationDto> findAll() {
+    @Transactional(readOnly = true)
+    public java.util.List<LocationResponse> findAll() {
         return locationRepository.findAll().stream()
-                .map(locationMapper::toDto)
-                .collect(Collectors.toList());
+                .map(locationMapper::toResponse)
+                .toList();
     }
 
-    public LocationDto update(LocationDto locationDto) {
-        Location location = locationMapper.toEntity(locationDto);
+    @Transactional
+    public LocationResponse update(Integer id, LocationRequest locationRequest) {
+        Location location = locationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Location not found with id: " + id));
+        
+        location.setName(locationRequest.getName());
+        location.setDetails(locationRequest.getDetails());
+        
         Location saved = locationRepository.save(location);
-        return locationMapper.toDto(saved);
+        return locationMapper.toResponse(saved);
     }
 
+    @Transactional
     public void deleteById(Integer id) {
         locationRepository.deleteById(id);
-    }
-
-    public void delete(LocationDto locationDto) {
-        Location location = locationMapper.toEntity(locationDto);
-        locationRepository.delete(location);
     }
 }
