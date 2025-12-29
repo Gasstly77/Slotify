@@ -1,5 +1,6 @@
 package by.slotify.core.repository;
 
+import by.slotify.core.entity.Meeting;
 import by.slotify.core.entity.Request;
 import by.slotify.core.entity.TimeSlot;
 import by.slotify.core.entity.User;
@@ -14,7 +15,9 @@ import java.util.List;
 public interface RequestRepository extends JpaRepository<Request, Integer> {
     Page<Request> findByUser(User user, Pageable pageable);
     List<Request> findByUserAndStatus(User user, Request.Status status);
-    Page<Request> findByTimeSlot_Meeting_MeetingId(Integer meetingId, Pageable pageable);
+    Page<Request> findByMeeting_MeetingId(Integer meetingId, Pageable pageable);
+    List<Request> findByMeeting(Meeting meeting);
+    List<Request> findByMeetingAndStatus(Meeting meeting, Request.Status status);
     List<Request> findByStatus(Request.Status status);
     List<Request> findByTimeSlot(TimeSlot timeSlot);
     List<Request> findByTimeSlotAndStatus(TimeSlot timeSlot, Request.Status status);

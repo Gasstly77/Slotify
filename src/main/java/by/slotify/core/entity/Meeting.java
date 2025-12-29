@@ -49,6 +49,10 @@ public class Meeting {
     @Builder.Default
     private List<TimeSlot> timeSlots = new ArrayList<>();
 
+    @OneToMany(mappedBy = "meeting")
+    @Builder.Default
+    private List<Request> requests = new ArrayList<>();
+
     public enum Status {
         PLANNED, CONFIRMED, CANCELLED
     }

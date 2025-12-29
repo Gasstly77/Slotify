@@ -3,6 +3,7 @@ package by.slotify.core.service;
 import by.slotify.core.dto.request.AcceptRequestRequest;
 import by.slotify.core.dto.request.RequestRequest;
 import by.slotify.core.dto.response.RequestResponse;
+import by.slotify.core.entity.Meeting;
 import by.slotify.core.entity.Notification;
 import by.slotify.core.entity.ParticipationType;
 import by.slotify.core.entity.Request;
@@ -47,8 +48,15 @@ public class RequestService {
         ParticipationType participationType = participationTypeRepository.findById(requestRequest.getParticipationTypeId())
                 .orElseThrow(() -> new RuntimeException("ParticipationType not found with id: " + requestRequest.getParticipationTypeId()));
         
+        // Устанавливаем Meeting из TimeSlot для прямой связи
+        Meeting meeting = timeSlot.getMeeting();
+        if (meeting == null) {
+            throw new RuntimeException("TimeSlot does not have associated Meeting");
+        }
+        
         request.setUser(user);
         request.setTimeSlot(timeSlot);
+        request.setMeeting(meeting);
         request.setParticipationType(participationType);
         
         Request saved = requestRepository.save(request);
@@ -84,6 +92,12 @@ public class RequestService {
             TimeSlot timeSlot = timeSlotRepository.findById(requestRequest.getSlotId())
                     .orElseThrow(() -> new RuntimeException("TimeSlot not found with id: " + requestRequest.getSlotId()));
             request.setTimeSlot(timeSlot);
+            // Обновляем Meeting при изменении TimeSlot
+            Meeting meeting = timeSlot.getMeeting();
+            if (meeting == null) {
+                throw new RuntimeException("TimeSlot does not have associated Meeting");
+            }
+            request.setMeeting(meeting);
         }
         
         if (requestRequest.getParticipationTypeId() != null) {
@@ -111,7 +125,7 @@ public class RequestService {
 
     @Transactional(readOnly = true)
     public Page<RequestResponse> findByMeetingId(Integer meetingId, Pageable pageable) {
-        return requestRepository.findByTimeSlot_Meeting_MeetingId(meetingId, pageable)
+        return requestRepository.findByMeeting_MeetingId(meetingId, pageable)
                 .map(requestMapper::toResponse);
     }
 

@@ -16,6 +16,7 @@ public class RequestResponse {
     private Integer requestId;
     private Integer userId;
     private Integer slotId;
+    private Integer meetingId;
     private Integer participationTypeId;
     private Request.Status status;
     private LocalDateTime createdAt;

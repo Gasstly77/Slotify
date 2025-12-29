@@ -10,12 +10,14 @@ import org.mapstruct.Mapping;
 public interface RequestMapper {
     @Mapping(source = "user.userId", target = "userId")
     @Mapping(source = "timeSlot.slotId", target = "slotId")
+    @Mapping(source = "meeting.meetingId", target = "meetingId")
     @Mapping(source = "participationType.participationTypeId", target = "participationTypeId")
     RequestResponse toResponse(Request request);
 
     @Mapping(target = "requestId", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "timeSlot", ignore = true)
+    @Mapping(target = "meeting", ignore = true)
     @Mapping(target = "participationType", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     Request toEntity(RequestRequest requestRequest);

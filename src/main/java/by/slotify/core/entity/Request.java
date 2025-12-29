@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "requests", indexes = {
     @Index(name = "idx_request_user", columnList = "user_id"),
     @Index(name = "idx_request_slot", columnList = "slot_id"),
+    @Index(name = "idx_request_meeting", columnList = "meeting_id"),
     @Index(name = "idx_request_status", columnList = "status"),
     @Index(name = "idx_request_user_status", columnList = "user_id,status")
 })
@@ -30,6 +31,10 @@ public class Request {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slot_id", nullable = false)
     private TimeSlot timeSlot;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_id")
+    private Meeting meeting;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participation_type_id", nullable = false)

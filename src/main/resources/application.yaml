@@ -42,7 +42,7 @@ springdoc:
 
 jwt:
   secret: mySecretKeyForJWTTokenGenerationThatShouldBeAtLeast256BitsLongForSecurityPurposes
-  expiration: 30000
+  expiration: 120000
   refresh:
     expiration: 300000
 
