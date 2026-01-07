@@ -1,0 +1,1506 @@
+{
+	"info": {
+		"_postman_id": "slotify-api-collection",
+		"name": "Slotify API",
+		"description": "Полная коллекция API для системы бронирования слотов на мероприятия",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\",\n    \"email\": \"testuser@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "Регистрация нового пользователя с ролью USER и автоматический вход"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"accessToken\", jsonData.accessToken);",
+									"    pm.environment.set(\"refreshToken\", jsonData.refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Аутентификация пользователя и получение JWT токенов"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "refresh"]
+						},
+						"description": "Получение нового access token по refresh token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "logout"]
+						},
+						"description": "Выход из системы - удаление refresh token"
+					},
+					"response": []
+				}
+			],
+			"description": "API для аутентификации"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=0&size=20&sort=userId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "userId"
+								}
+							]
+						},
+						"description": "Возвращает страницу пользователей с пагинацией"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						},
+						"description": "Возвращает пользователя по указанному ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"newuser\",\n    \"passwordHash\": \"hashedpassword123\",\n    \"email\": \"newuser@example.com\",\n    \"role\": \"USER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Создает нового пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"updateduser\",\n    \"passwordHash\": \"newhashedpassword123\",\n    \"email\": \"updateduser@example.com\",\n    \"role\": \"ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						},
+						"description": "Обновляет существующего пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						},
+						"description": "Удаляет пользователя по указанному ID"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления пользователями"
+		},
+		{
+			"name": "Meetings",
+			"item": [
+				{
+					"name": "Get All Meetings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/meetings?page=0&size=20&sort=meetingId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meetings"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "meetingId"
+								}
+							]
+						},
+						"description": "Возвращает страницу мероприятий с пагинацией"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Meeting By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/meetings/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meetings", "1"]
+						},
+						"description": "Получить мероприятие по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Meeting",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Встреча команды разработки\",\n    \"description\": \"Обсуждение текущих задач и планов\",\n    \"finalTime\": \"2024-12-31T15:00:00\",\n    \"status\": \"PLANNED\",\n    \"meetingTypeId\": 1,\n    \"locationId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/meetings",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meetings"]
+						},
+						"description": "Создать новое мероприятие (только для админа). Статусы: PLANNED, CONFIRMED, CANCELLED"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Meeting",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Обновленная встреча команды\",\n    \"description\": \"Обновленное описание\",\n    \"finalTime\": \"2024-12-31T16:00:00\",\n    \"status\": \"CONFIRMED\",\n    \"meetingTypeId\": 1,\n    \"locationId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/meetings/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meetings", "1"]
+						},
+						"description": "Обновить мероприятие (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Meeting",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/meetings/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meetings", "1"]
+						},
+						"description": "Удалить мероприятие (только для админа)"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления мероприятиями"
+		},
+		{
+			"name": "Requests",
+			"item": [
+				{
+					"name": "Get All Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/requests?page=0&size=20&sort=requestId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "requests"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "requestId"
+								}
+							]
+						},
+						"description": "Возвращает страницу запросов с пагинацией (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Request By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/requests/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "requests", "1"]
+						},
+						"description": "Получить запрос по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"slotId\": 1,\n    \"participationTypeId\": 1,\n    \"status\": \"PENDING\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/requests",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "requests"]
+						},
+						"description": "Создать заявку на участие в мероприятии (только для пользователя). userId устанавливается автоматически. Статусы: PENDING, ACCEPTED, REJECTED, NEEDS_CHANGE"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"slotId\": 1,\n    \"participationTypeId\": 1,\n    \"status\": \"ACCEPTED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/requests/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "requests", "1"]
+						},
+						"description": "Обновить запрос"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Request",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/requests/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "requests", "1"]
+						},
+						"description": "Удалить запрос"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления запросами на участие"
+		},
+		{
+			"name": "Time Slots",
+			"item": [
+				{
+					"name": "Get All Time Slots",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/time-slots",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "time-slots"]
+						},
+						"description": "Получить все временные слоты"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Time Slot By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/time-slots/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "time-slots", "1"]
+						},
+						"description": "Получить временной слот по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Time Slot",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"meetingId\": 1,\n    \"startTime\": \"2024-12-31T10:00:00\",\n    \"endTime\": \"2024-12-31T11:00:00\",\n    \"isFinal\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/time-slots",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "time-slots"]
+						},
+						"description": "Создать временной слот для мероприятия (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Time Slot",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"meetingId\": 1,\n    \"startTime\": \"2024-12-31T14:00:00\",\n    \"endTime\": \"2024-12-31T15:00:00\",\n    \"isFinal\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/time-slots/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "time-slots", "1"]
+						},
+						"description": "Обновить временной слот (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Time Slot",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/time-slots/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "time-slots", "1"]
+						},
+						"description": "Удалить временной слот (только для админа)"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления временными слотами"
+		},
+		{
+			"name": "Locations",
+			"item": [
+				{
+					"name": "Get All Locations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/locations",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "locations"]
+						},
+						"description": "Получить все локации"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Location By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/locations/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "locations", "1"]
+						},
+						"description": "Получить локацию по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Location",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Конференц-зал А\",\n    \"details\": \"Первый этаж, комната 101, вместимость 50 человек\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/locations",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "locations"]
+						},
+						"description": "Создать локацию (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Location",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Конференц-зал Б\",\n    \"details\": \"Второй этаж, комната 201, вместимость 100 человек\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/locations/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "locations", "1"]
+						},
+						"description": "Обновить локацию (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Location",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/locations/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "locations", "1"]
+						},
+						"description": "Удалить локацию (только для админа)"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления локациями"
+		},
+		{
+			"name": "Meeting Types",
+			"item": [
+				{
+					"name": "Get All Meeting Types",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/meeting-types",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meeting-types"]
+						},
+						"description": "Получить все типы мероприятий"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Meeting Type By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/meeting-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meeting-types", "1"]
+						},
+						"description": "Получить тип мероприятия по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Meeting Type",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Совещание\",\n    \"description\": \"Внутренние совещания команды\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/meeting-types",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meeting-types"]
+						},
+						"description": "Создать тип мероприятия (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Meeting Type",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Презентация\",\n    \"description\": \"Презентации проектов и результатов\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/meeting-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meeting-types", "1"]
+						},
+						"description": "Обновить тип мероприятия (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Meeting Type",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/meeting-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "meeting-types", "1"]
+						},
+						"description": "Удалить тип мероприятия (только для админа)"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления типами мероприятий"
+		},
+		{
+			"name": "Participation Types",
+			"item": [
+				{
+					"name": "Get All Participation Types",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/participation-types",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "participation-types"]
+						},
+						"description": "Получить все типы участия"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Participation Type By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/participation-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "participation-types", "1"]
+						},
+						"description": "Получить тип участия по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Participation Type",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Онлайн\",\n    \"description\": \"Участие через видеосвязь\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/participation-types",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "participation-types"]
+						},
+						"description": "Создать тип участия (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Participation Type",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Офлайн\",\n    \"description\": \"Личное присутствие\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/participation-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "participation-types", "1"]
+						},
+						"description": "Обновить тип участия (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Participation Type",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/participation-types/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "participation-types", "1"]
+						},
+						"description": "Удалить тип участия (только для админа)"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления типами участия"
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Get My Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications/my",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications", "my"]
+						},
+						"description": "Получить все уведомления текущего пользователя (только для USER)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications"]
+						},
+						"description": "Получить все уведомления (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Notification By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications", "1"]
+						},
+						"description": "Получить уведомление по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"message\": \"Ваша заявка была принята\",\n    \"type\": \"CONFIRMATION\",\n    \"isRead\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications"]
+						},
+						"description": "Создать уведомление. Типы: INFO, WARNING, CONFIRMATION"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Notification",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"message\": \"Обновленное уведомление\",\n    \"type\": \"INFO\",\n    \"isRead\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications", "1"]
+						},
+						"description": "Обновить уведомление"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Notification",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/notifications/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "notifications", "1"]
+						},
+						"description": "Удалить уведомление"
+					},
+					"response": []
+				}
+			],
+			"description": "API для управления уведомлениями"
+		},
+		{
+			"name": "Admin Operations",
+			"item": [
+				{
+					"name": "Get Meeting Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meetings/1/requests?page=0&size=20&sort=requestId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meetings", "1", "requests"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "requestId"
+								}
+							]
+						},
+						"description": "Получить все заявки на указанное мероприятие (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Accept or Reject Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestId\": 1,\n    \"accept\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/requests/accept-or-reject",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "requests", "accept-or-reject"]
+						},
+						"description": "Принять или отклонить заявку на участие (только для админа). accept: true - принять, false - отклонить"
+					},
+					"response": []
+				},
+				{
+					"name": "Set Final Time",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"timeSlotId\": 1,\n    \"finalTime\": \"2024-12-31T15:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/time-slots/set-final-time",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "time-slots", "set-final-time"]
+						},
+						"description": "Установить финальное время для временного слота (только для админа)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Meeting Time Slots",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meetings/1/time-slots",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meetings", "1", "time-slots"]
+						},
+						"description": "Получить все временные слоты для мероприятия (только для админа)"
+					},
+					"response": []
+				}
+			],
+			"description": "API для операций администратора"
+		},
+		{
+			"name": "User Operations",
+			"item": [
+				{
+					"name": "Get My Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/my-requests?page=0&size=20&sort=requestId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "my-requests"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "requestId"
+								}
+							]
+						},
+						"description": "Получить все заявки текущего пользователя (только для USER)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Accepted Meetings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/my-accepted-meetings",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "my-accepted-meetings"]
+						},
+						"description": "Получить все принятые заявки текущего пользователя (только для USER)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Meetings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/active-meetings?page=0&size=20&sort=meetingId",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "active-meetings"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								},
+								{
+									"key": "sort",
+									"value": "meetingId"
+								}
+							]
+						},
+						"description": "Получить все активные мероприятия доступные для участия (только для USER)"
+					},
+					"response": []
+				}
+			],
+			"description": "API для операций пользователя"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+

@@ -1,6 +1,7 @@
 package by.slotify.core.service;
 
-import by.slotify.core.dto.NotificationDto;
+import by.slotify.core.dto.request.NotificationRequest;
+import by.slotify.core.dto.response.NotificationResponse;
 import by.slotify.core.entity.Notification;
 import by.slotify.core.entity.User;
 import by.slotify.core.mapper.NotificationMapper;
@@ -12,63 +13,70 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final NotificationMapper notificationMapper;
 
-    public NotificationDto create(NotificationDto notificationDto) {
-        Notification notification = notificationMapper.toEntity(notificationDto);
-
-        User user = userRepository.findById(notificationDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + notificationDto.getUserId()));
+    @Transactional
+    public NotificationResponse create(NotificationRequest notificationRequest) {
+        Notification notification = notificationMapper.toEntity(notificationRequest);
+        
+        User user = userRepository.findById(notificationRequest.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + notificationRequest.getUserId()));
         
         notification.setUser(user);
         
         Notification saved = notificationRepository.save(notification);
-        return notificationMapper.toDto(saved);
+        return notificationMapper.toResponse(saved);
     }
 
-    public Optional<NotificationDto> findById(Integer id) {
+    @Transactional(readOnly = true)
+    public Optional<NotificationResponse> findById(Integer id) {
         return notificationRepository.findById(id)
-                .map(notificationMapper::toDto);
+                .map(notificationMapper::toResponse);
     }
 
-    public List<NotificationDto> findAll() {
+    @Transactional(readOnly = true)
+    public List<NotificationResponse> findAll() {
         return notificationRepository.findAll().stream()
-                .map(notificationMapper::toDto)
-                .collect(Collectors.toList());
+                .map(notificationMapper::toResponse)
+                .toList();
     }
 
-    public NotificationDto update(NotificationDto notificationDto) {
-        Notification notification = notificationRepository.findById(notificationDto.getNotificationId())
-                .orElseThrow(() -> new RuntimeException("Notification not found with id: " + notificationDto.getNotificationId()));
+    @Transactional
+    public NotificationResponse update(Integer id, NotificationRequest notificationRequest) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notification not found with id: " + id));
         
-        notification.setMessage(notificationDto.getMessage());
-        notification.setType(notificationDto.getType());
-        notification.setIsRead(notificationDto.getIsRead());
+        notification.setMessage(notificationRequest.getMessage());
+        notification.setType(notificationRequest.getType());
+        notification.setIsRead(notificationRequest.getIsRead());
         
-        if (notificationDto.getUserId() != null) {
-            User user = userRepository.findById(notificationDto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found with id: " + notificationDto.getUserId()));
+        if (notificationRequest.getUserId() != null) {
+            User user = userRepository.findById(notificationRequest.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found with id: " + notificationRequest.getUserId()));
             notification.setUser(user);
         }
         
         Notification saved = notificationRepository.save(notification);
-        return notificationMapper.toDto(saved);
+        return notificationMapper.toResponse(saved);
     }
 
+    @Transactional
     public void deleteById(Integer id) {
         notificationRepository.deleteById(id);
     }
 
-    public void delete(NotificationDto notificationDto) {
-        Notification notification = notificationMapper.toEntity(notificationDto);
-        notificationRepository.delete(notification);
+    @Transactional(readOnly = true)
+    public List<NotificationResponse> findByUserId(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        return notificationRepository.findByUser(user).stream()
+                .map(notificationMapper::toResponse)
+                .toList();
     }
 }
